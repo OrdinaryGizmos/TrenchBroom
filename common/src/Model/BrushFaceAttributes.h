@@ -54,6 +54,7 @@ private:
   std::optional<float> m_surfaceValue;
 
   std::optional<Color> m_color;
+  std::optional<vm::vec<Color, 3>> m_vertexColors;
 
 public:
   explicit BrushFaceAttributes(std::string_view materialName);
@@ -89,7 +90,9 @@ public:
   const std::optional<float>& surfaceValue() const;
 
   bool hasColor() const;
+  bool hasVertexColors() const;
   const std::optional<Color>& color() const;
+  const std::optional<vm::vec<Color, 3>>& vertexColors() const;
 
   bool valid() const;
 
@@ -105,6 +108,7 @@ public:
   bool setSurfaceFlags(const std::optional<int>& surfaceFlags);
   bool setSurfaceValue(const std::optional<float>& surfaceValue);
   bool setColor(const std::optional<Color>& color);
+  bool setVertexColors(vm::vec<Color, 3> colors);
 };
 
 } // namespace TrenchBroom::Model

@@ -75,7 +75,7 @@ private:
   std::weak_ptr<View::MapDocument> m_document;
   EntityWithDependenciesMap m_entities;
 
-  using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
+  using Vertex = Renderer::GLVertexTypes::P3NT2C4::Vertex;
   using MaterialToBrushIndicesMap =
     std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
 

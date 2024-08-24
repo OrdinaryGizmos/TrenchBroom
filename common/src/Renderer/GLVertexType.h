@@ -198,6 +198,11 @@ using P3NT2 = GLVertexType<
   GLVertexAttributeTypes::P3,
   GLVertexAttributeTypes::N,
   GLVertexAttributeTypes::UV02>;
+using P3NT2C4 = GLVertexType<
+  GLVertexAttributeTypes::P3,
+  GLVertexAttributeTypes::N,
+  GLVertexAttributeTypes::UV02,
+  GLVertexAttributeTypes::C4>;
 } // namespace GLVertexTypes
 } // namespace Renderer
 } // namespace TrenchBroom

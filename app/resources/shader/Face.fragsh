@@ -33,40 +33,50 @@ uniform float GridAlpha;
 uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
+uniform bool UseVertexColor;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
+varying vec4 vertColor;
 
 float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
-	if (ApplyMaterial)
-		gl_FragColor = texture2D(Material, gl_TexCoord[0].st);
+    vec4 texel;
+    if (ApplyMaterial)
+		texel = texture2D(Material, gl_TexCoord[0].st);
 	else
-		gl_FragColor = faceColor;
+		texel = faceColor;
+        
 
     // Assume alpha masked or opaque.
     // TODO: Make this optional if we gain support for translucent textures
-    if (EnableMasked && gl_FragColor.a < 0.5) {
+    if (EnableMasked && texel.a < 0.5) {
         discard;
     }
 
-    gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
-    gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
-    gl_FragColor.a = Alpha;
+
+    if (UseVertexColor){
+        texel = texel - (1.0 - vertColor);
+        texel.a = vertColor.a;
+    } else{
+        texel.a = Alpha;
+    }
+    texel = vec4(vec3(Brightness / 2.0 * texel), texel.a);
+    texel = clamp(2.0 * texel, 0.0, 1.0);
 
     if (GrayScale) {
-        float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
-        gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
+        float gray = dot(texel.rgb, vec3(0.299, 0.587, 0.114));
+        texel = vec4(gray, gray, gray, texel.a);
     }
 
     if (ApplyTinting) {
-        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+        texel = vec4(texel.rgb * TintColor.rgb * TintColor.a, texel.a);
         float brightnessCorrection = 1.0 / max(max(abs(TintColor.r), abs(TintColor.g)), abs(TintColor.b));
-        gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);
+        texel = clamp(brightnessCorrection * texel, 0.0, 1.0);
     }
 
 	if (ShadeFaces) {
@@ -75,7 +85,7 @@ void main() {
 		float dimStrength = 0.25;
 		float angleDim = dot(normalize(viewVector), normalize(modelNormal)) * dimStrength + (1.0 - dimStrength);
 
-		gl_FragColor.rgb *= angleDim;
+		texel.rgb *= angleDim;
 	}
 
 	if (ShowFog) {
@@ -90,8 +100,8 @@ void main() {
         
         float fogFactor = max(distance - fogMinDistance, 0.0) * fogScale;
 
-		//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, clamp(fogFactor + fogBias, 0.0, maxFogAmount));
+		//texel.rgb = mix( texel.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
+		texel.rgb = mix(texel.rgb, fogColor, clamp(fogFactor + fogBias, 0.0, maxFogAmount));
 	}
 
 	if (RenderGrid && GridAlpha > 0.0) {
@@ -104,8 +114,9 @@ void main() {
         float minGridSize = 2.0 * maxWorldSpaceChange;
 
         float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
+        texel.rgb = mix(texel.rgb, GridColor, gridValue * GridAlpha);
 	}
 
-    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);
+    texel.rgb = applySoftMapBoundsTint(texel.rgb, modelCoordinates.xyz);
+    gl_FragColor = texel;
 }
