@@ -20,6 +20,7 @@
 #include "StandardMapParser.h"
 
 #include "IO/ParserStatus.h"
+#include "IO/MapReader.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
@@ -29,6 +30,8 @@
 #include "vm/plane.h"
 #include "vm/vec.h"
 
+#include <cstdio>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -384,6 +387,9 @@ void StandardMapParser::parseBrush(
       }
       parseFace(status, primitive);
       break;
+    case QuakeMapToken::OBracket:
+        onColorBlock(status);
+      break;
     case QuakeMapToken::CBrace:
       // TODO 2427: handle brush primitives
       if (!primitive)
@@ -441,6 +447,9 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
     {
       parseQuake2Face(status);
     }
+    break;
+  case Model::MapFormat::N64:
+    parseN64Face(status);
     break;
   case Model::MapFormat::Unknown:
     // cannot happen
@@ -520,6 +529,35 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   }
 
   onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+}
+
+void StandardMapParser::parseN64Face(ParserStatus& status)
+{
+  const auto line = m_tokenizer.line();
+
+  const auto [p1, p2, p3] = parseFacePoints(status);
+  const auto textureName = parseTextureName(status);
+
+  const auto [texX, xOffset, texY, yOffset] = parseValveTextureAxes(status);
+
+  auto attribs = Model::BrushFaceAttributes(textureName);
+  attribs.setXOffset(xOffset);
+  attribs.setYOffset(yOffset);
+  attribs.setRotation(parseFloat());
+  attribs.setXScale(parseFloat());
+  attribs.setYScale(parseFloat());
+
+  //Quake 2 extra info is optional
+  if (!check(
+        QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof,
+        m_tokenizer.peekToken()))
+  {
+    attribs.setSurfaceContents(parseInteger());
+    attribs.setSurfaceFlags(parseInteger());
+    attribs.setSurfaceValue(parseFloat());
+  }
+
+  onN64BrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)
@@ -702,6 +740,12 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
     std::move(controlPoints),
     std::move(materialName),
     status);
+}
+
+vm::vec<float, 4> StandardMapParser::parseColor(
+  ParserStatus& /* status */)
+{
+  return correct(parseFloatVector<4, float>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
 }
 
 std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(

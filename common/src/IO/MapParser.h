@@ -52,6 +52,7 @@ protected: // subclassing interface for users of the parser
   virtual void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
   virtual void onBeginBrush(size_t line, ParserStatus& status) = 0;
   virtual void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
+  virtual void onColorBlock(ParserStatus& status) = 0;
   virtual void onStandardBrushFace(
     size_t line,
     Model::MapFormat targetMapFormat,
@@ -69,6 +70,16 @@ protected: // subclassing interface for users of the parser
     const Model::BrushFaceAttributes& attribs,
     const vm::vec3& uAxis,
     const vm::vec3& vAxis,
+    ParserStatus& status) = 0;
+  virtual void onN64BrushFace(
+    size_t line,
+    Model::MapFormat targetMapFormat,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const Model::BrushFaceAttributes& attribs,
+    const vm::vec3& texAxisX,
+    const vm::vec3& texAxisY,
     ParserStatus& status) = 0;
   virtual void onPatch(
     size_t startLine,

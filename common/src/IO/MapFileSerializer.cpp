@@ -278,6 +278,47 @@ private:
   }
 };
 
+class N64FileSerializer : public Quake2FileSerializer
+{
+public:
+  explicit N64FileSerializer(std::ostream& stream)
+    : Quake2FileSerializer(stream)
+  {
+  }
+
+private:
+  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  {
+    writeFacePoints(stream, face);
+    writeValveTextureInfo(stream, face);
+
+    if (face.attributes().hasSurfaceAttributes())
+    {
+      writeSurfaceAttributes(stream, face);
+    }
+    if (face.attributes().hasVertexColors())
+    {
+      writeVertexColors(stream, face);
+    }
+
+    fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
+  }
+    
+  void writeVertexColors(std::ostream& stream, const Model::BrushFace& face) const
+  {
+      auto const colors = face.attributes().vertexColors().value();
+      for( size_t i = 0; i < 3; i++){
+          fmt::format_to(
+                         std::ostreambuf_iterator<char>(stream),
+                         " ( {} {} {} {} )",
+                         static_cast<int>(colors[i].r()),
+                         static_cast<int>(colors[i].g()),
+                         static_cast<int>(colors[i].b()),
+                         static_cast<int>(colors[i].a()));
+      }
+  }
+};
+
 std::unique_ptr<NodeSerializer> MapFileSerializer::create(
   const Model::MapFormat format, std::ostream& stream)
 {
@@ -299,6 +340,8 @@ std::unique_ptr<NodeSerializer> MapFileSerializer::create(
     return std::make_unique<ValveFileSerializer>(stream);
   case Model::MapFormat::Hexen2:
     return std::make_unique<Hexen2FileSerializer>(stream);
+  case Model::MapFormat::N64:
+    return std::make_unique<N64FileSerializer>(stream);
   case Model::MapFormat::Unknown:
     throw FileFormatException("Unknown map file format");
     switchDefault();

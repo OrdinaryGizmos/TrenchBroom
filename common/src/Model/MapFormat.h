@@ -70,6 +70,10 @@ enum class MapFormat
    * Quake 3 with brush primitives, also allows Quake 2 brushes
    */
   Quake3,
+  /**
+   * Quake3_Valve with support for vertex colors
+   */
+  N64,
 };
 
 std::ostream& operator<<(std::ostream& lhs, MapFormat rhs);

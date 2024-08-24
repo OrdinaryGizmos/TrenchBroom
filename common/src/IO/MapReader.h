@@ -107,7 +107,7 @@ private:
   Model::EntityPropertyConfig m_entityPropertyConfig;
   vm::bbox3 m_worldBounds;
 
-private: // data populated in response to MapParser callbacks
+protected: // data populated in response to MapParser callbacks
   std::vector<ObjectInfo> m_objectInfos;
   std::optional<size_t> m_currentEntityInfo;
 
@@ -155,6 +155,7 @@ protected: // implement MapParser interface
   void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
   void onBeginBrush(size_t line, ParserStatus& status) override;
   void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) override;
+  void onColorBlock(ParserStatus& status) override;
   void onStandardBrushFace(
     size_t line,
     Model::MapFormat targetMapFormat,
@@ -172,6 +173,16 @@ protected: // implement MapParser interface
     const Model::BrushFaceAttributes& attribs,
     const vm::vec3& uAxis,
     const vm::vec3& vAxis,
+    ParserStatus& status) override;
+  void onN64BrushFace(
+    size_t line,
+    Model::MapFormat targetMapFormat,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const Model::BrushFaceAttributes& attribs,
+    const vm::vec3& texAxisX,
+    const vm::vec3& texAxisY,
     ParserStatus& status) override;
   void onPatch(
     size_t startLine,

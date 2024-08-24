@@ -27,6 +27,7 @@ using FloatType = double;
 namespace vm
 {
 using vec3 = vm::vec<FloatType, 3>;
+using vec4 = vm::vec<FloatType, 4>;
 using vec2 = vm::vec<FloatType, 2>;
 using mat4x4 = vm::mat<FloatType, 4, 4>;
 using quat3 = vm::quat<FloatType>;
