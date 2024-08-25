@@ -112,7 +112,7 @@ protected:
 
   void reset();
 
-private:
+protected:
   void parseEntity(ParserStatus& status);
   void parseEntityProperty(
     std::vector<Model::EntityProperty>& properties,

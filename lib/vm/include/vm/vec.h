@@ -63,6 +63,7 @@ public:
   // Assignment operators
   vec<T, S>& operator=(const vec<T, S>& other) = default;
   vec<T, S>& operator=(vec<T, S>&& other) noexcept = default;
+  
 
   /**
    * Creates a new vector from the values in the given initializer list. If the given list
@@ -2006,3 +2007,20 @@ T measure_angle(const vec<T, 3>& v, const vec<T, 3>& axis, const vec<T, 3>& up)
   }
 }
 } // namespace vm
+
+namespace std{
+// Hashing Operator
+  template <typename T, size_t S>
+class hash<vm::vec<T, S>>{
+  public:
+  std::size_t operator()(vm::vec<T, S> const& s) const 
+  {
+    size_t hash = 7919;
+    for (size_t i = 0; i < S; ++i)
+      {
+        hash = hash * 16777619 ^ static_cast<size_t>(s.v[i]);
+      }
+    return hash;
+  }
+  };
+} // namespace std

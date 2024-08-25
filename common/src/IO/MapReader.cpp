@@ -22,6 +22,7 @@
 #include "Error.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushGeometry.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -32,6 +33,7 @@
 #include "Model/LockState.h"
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
+#include "Model/Polyhedron.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 #include "Uuid.h"
@@ -43,9 +45,11 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/mat.h"
+#include "FloatType.h"
 #include "vm/mat_io.h"
 
 #include <cassert>
+#include <cstddef>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -112,7 +116,7 @@ void MapReader::onEndEntity(
 
 void MapReader::onBeginBrush(const size_t /* line */, ParserStatus& /* status */)
 {
-  m_objectInfos.emplace_back(BrushInfo{{}, 0, 0, m_currentEntityInfo});
+  m_objectInfos.emplace_back(BrushInfo{{}, {}, 0, 0, m_currentEntityInfo});
 }
 
 void MapReader::onEndBrush(
@@ -163,25 +167,7 @@ void MapReader::onValveBrushFace(
     | kdl::transform_error(
       [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
-    
-void MapReader::onColorBlock(ParserStatus& status){
-  assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
-
-  auto& brush = std::get<BrushInfo>(m_objectInfos.back());
-  Model::BrushFace::sortFaces(brush.faces);
-  for(auto face : brush.faces){
-      auto attribs = face.attributes();
-      if (check(QuakeMapToken::OParenthesis, m_tokenizer.peekToken()))
-          {
-              vm::vec<Color, 3> colors;
-              const auto Color = parseColor(status);
-              // red, green, blue, alpha
-              attribs.setVertexColors(colors);
-          }
-      face.setAttributes(attribs);
-  }
-}
-    
+   
 void MapReader::onN64BrushFace(
   const size_t line,
   const Model::MapFormat targetMapFormat,
@@ -611,8 +597,9 @@ CreateNodeResult createBrushNode(
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
          | kdl::transform([&](auto brush) {
-             auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
-             brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
+           brush.setColors(std::move(brushInfo.cached_colors));
+           auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
+           brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
 
              auto parentInfo = brushInfo.parentIndex ? ParentInfo{*brushInfo.parentIndex}
                                                      : std::optional<ParentInfo>{};
@@ -1026,5 +1013,30 @@ void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */)
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
   brush.faces.push_back(std::move(face));
 }
+void MapReader::onColorBlock(ParserStatus& status)
+{
+  size_t lineCount = m_tokenizer.line();
+  expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
+  assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
 
+  auto& brush = std::get<BrushInfo>(m_objectInfos.back());
+  std::unordered_map<vm::vec3, Color> cached_colors;
+
+  /// For each color found, put that color on the
+  /// A Color entry looks like ( 0 ( 1 0 0 1) ), which paints the vertex red
+  /// just reading the first one
+  while (!m_tokenizer.peekToken().hasType(QuakeMapToken::CBracket)){
+    if (check(QuakeMapToken::OParenthesis, m_tokenizer.nextToken()))
+      {
+        auto p = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+        auto c = parseColor(status);
+        cached_colors.emplace(p, c);
+        expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
+      }
+  }
+  expect(QuakeMapToken::CBracket, m_tokenizer.nextToken());
+
+  brush.lineCount += m_tokenizer.line() - lineCount;
+  brush.cached_colors = cached_colors;
+}
 } // namespace TrenchBroom::IO

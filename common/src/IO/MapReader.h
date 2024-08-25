@@ -85,6 +85,7 @@ public: // only public so that helper methods can see these declarations
   struct BrushInfo
   {
     std::vector<Model::BrushFace> faces;
+    std::unordered_map<vm::vec3, Color> cached_colors;
     size_t startLine;
     size_t lineCount;
     std::optional<size_t> parentIndex;

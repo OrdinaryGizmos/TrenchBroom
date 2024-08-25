@@ -287,6 +287,10 @@ public:
   }
 
 private:
+  void doWriteBrushFooter(std::ostream& stream, const Model::Brush& brush) const override
+  {
+    writeVertexColors(stream, brush);
+  }
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
@@ -296,26 +300,27 @@ private:
     {
       writeSurfaceAttributes(stream, face);
     }
-    if (face.attributes().hasVertexColors())
-    {
-      writeVertexColors(stream, face);
-    }
-
     fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
   }
     
-  void writeVertexColors(std::ostream& stream, const Model::BrushFace& face) const
+  void writeVertexColors(std::ostream& stream, const Model::Brush& brush) const
   {
-      auto const colors = face.attributes().vertexColors().value();
-      for( size_t i = 0; i < 3; i++){
-          fmt::format_to(
-                         std::ostreambuf_iterator<char>(stream),
-                         " ( {} {} {} {} )",
-                         static_cast<int>(colors[i].r()),
-                         static_cast<int>(colors[i].g()),
-                         static_cast<int>(colors[i].b()),
-                         static_cast<int>(colors[i].a()));
+    fmt::format_to(std::ostreambuf_iterator<char>(stream),
+                   "[\n");
+    auto const colors = brush.colors();
+    for(auto& [pos, color] : colors){
+          fmt::format_to(std::ostreambuf_iterator<char>(stream),
+                         " ( ( {} {} {} ) ( {} {} {} {} ) )\n",
+                         pos[0],
+                         pos[1],
+                         pos[2],
+                         static_cast<int>(color.r()),
+                         static_cast<int>(color.g()),
+                         static_cast<int>(color.b()),
+                         static_cast<int>(color.a()));
       }
+    fmt::format_to(std::ostreambuf_iterator<char>(stream),
+                   "]\n");
   }
 };
 
@@ -504,6 +509,7 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writeBrushFaces(
   {
     doWriteBrushFace(stream, face);
   }
+  doWriteBrushFooter(stream, brush);
   return PrecomputedString{stream.str(), brush.faces().size()};
 }
 
