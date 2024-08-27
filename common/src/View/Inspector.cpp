@@ -23,6 +23,7 @@
 
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
+#include "View/VertexInspector.h"
 #include "View/MapInspector.h"
 #include "View/MapViewBar.h"
 #include "View/QtUtils.h"
@@ -40,6 +41,7 @@ Inspector::Inspector(
   , m_mapInspector(nullptr)
   , m_entityInspector(nullptr)
   , m_faceInspector(nullptr)
+  , m_vertexInspector(nullptr)
   , m_syncTabBarEventFilter(nullptr)
 {
   m_tabBook = new TabBook();
@@ -47,13 +49,14 @@ Inspector::Inspector(
   m_mapInspector = new MapInspector(document);
   m_entityInspector = new EntityInspector(document, contextManager);
   m_faceInspector = new FaceInspector(document, contextManager);
+  m_vertexInspector = new VertexInspector(document, contextManager);
 
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");
   m_tabBook->addPage(m_faceInspector, "Face");
-  //m_tabBook->addPage(, "Vertex");
+  m_tabBook->addPage(m_vertexInspector, "Vertex");
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout(); 
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_tabBook);
   setLayout(layout);
@@ -83,6 +86,11 @@ bool Inspector::cancelMouseDrag()
 FaceInspector* Inspector::faceInspector()
 {
   return m_faceInspector;
+}
+  
+VertexInspector* Inspector::vertexInspector()
+{
+  return m_vertexInspector;
 }
 } // namespace View
 } // namespace TrenchBroom

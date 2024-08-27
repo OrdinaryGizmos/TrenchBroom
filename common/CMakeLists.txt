@@ -479,6 +479,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
         ${COMMON_SOURCE_DIR}/View/VariableStoreModel.cpp
         ${COMMON_SOURCE_DIR}/View/VertexHandleManager.cpp
+        ${COMMON_SOURCE_DIR}/View/VertexInspector.cpp
         ${COMMON_SOURCE_DIR}/View/VertexTool.cpp
         ${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ViewConstants.cpp
@@ -1016,6 +1017,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/UVViewHelper.h
         ${COMMON_SOURCE_DIR}/View/VariableStoreModel.h
         ${COMMON_SOURCE_DIR}/View/VertexHandleManager.h
+        ${COMMON_SOURCE_DIR}/View/VertexInspector.h
         ${COMMON_SOURCE_DIR}/View/VertexTool.h
         ${COMMON_SOURCE_DIR}/View/VertexToolBase.h
         ${COMMON_SOURCE_DIR}/View/VertexToolController.h

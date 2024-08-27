@@ -106,6 +106,7 @@ public: // Vertex moving
   std::string actionName() const override;
 
   void removeSelection();
+  void applyVertexColor(Color color) override; 
 
 public: // Rendering
   void renderGuide(
@@ -116,7 +117,7 @@ public: // Rendering
 private: // Tool interface
   bool doActivate() override;
   bool doDeactivate() override;
-
+  
 private:
   void addHandles(const std::vector<Model::Node*>& nodes) override;
   void removeHandles(const std::vector<Model::Node*>& nodes) override;

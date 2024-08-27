@@ -21,6 +21,9 @@
 
 #include "Macros.h"
 #include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/PatchNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/RenderBatch.h"
@@ -40,6 +43,43 @@ namespace TrenchBroom
 {
 namespace View
 {
+  template <typename T>
+auto collectContainingGroups(const std::vector<T*>& nodes)
+{
+  auto result = std::vector<Model::GroupNode*>{};
+  Model::Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](const Model::WorldNode*) {},
+      [](const Model::LayerNode*) {},
+      [&](Model::GroupNode* groupNode) {
+        if (auto* containingGroupNode = groupNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](Model::EntityNode* entityNode) {
+        if (auto* containingGroupNode = entityNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](Model::BrushNode* brushNode) {
+        if (auto* containingGroupNode = brushNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](Model::PatchNode* patchNode) {
+        if (auto* containingGroupNode = patchNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      }));
+
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
+}
+  
 VertexTool::VertexTool(const std::weak_ptr<MapDocument>& document)
   : VertexToolBase(document)
   , m_mode(Mode::Move)
@@ -287,6 +327,22 @@ void VertexTool::removeSelection()
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Vertex", "Remove Brush Vertices");
   kdl::mem_lock(m_document)->removeVertices(commandName, std::move(handles));
+}
+
+void VertexTool::applyVertexColor(Color color)
+{
+  assert(!kdl::mem_expired(m_document));
+  auto document = kdl::mem_lock(m_document);
+  for(auto& b : selectedBrushes())
+    {
+      auto br = Model::Brush(b->brush());
+      for(auto& v : m_vertexHandles->selectedHandles())
+        {
+          br.addOrUpdateColor(v, color);
+        }
+      
+      b->setBrush(br);
+    }
 }
 
 void VertexTool::renderGuide(

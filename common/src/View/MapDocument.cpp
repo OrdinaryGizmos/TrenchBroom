@@ -29,6 +29,8 @@
 #include "Assets/MaterialManager.h"
 #include "Assets/ResourceManager.h"
 #include "Assets/Texture.h"
+#include "Assets/MaterialManager.h"
+#include "Color.h"
 #include "EL/ELExceptions.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -3628,6 +3630,22 @@ bool MapDocument::setFaceAttributes(
       request.evaluate(brushFace);
       return true;
     });
+}
+
+
+void MapDocument::setVertexColors(
+  const Color& color)
+{
+  // Get selection
+  // Apply color to the selection
+  m_vertexColor = color;
+  vertexColorAppliedNotifier(color);
+  nodesDidChangeNotifier(m_selectedNodes.nodes());
+}
+
+Color& MapDocument::vertexColor()
+{
+  return m_vertexColor;
 }
 
 bool MapDocument::copyUVFromFace(

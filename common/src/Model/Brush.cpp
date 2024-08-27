@@ -251,6 +251,26 @@ void Brush::setColors(std::unordered_map<vm::vec3, Color> colors)
   m_cachedColors = colors;
 }
 
+void Brush::addOrUpdateColor(vm::vec3 pos, Color color)
+{
+  m_cachedColors[pos] = color;
+}
+
+void Brush::cleanColorCache()
+{
+  std::vector<vm::vec3> posToDelete;
+  for(auto [pos, color] : m_cachedColors)
+    {
+      if(!hasVertex(pos)){
+        posToDelete.push_back(pos);
+      }
+    }
+  for(auto pos : posToDelete)
+    {
+      m_cachedColors.erase(pos);
+    }
+}
+
 bool Brush::hasVertexColors() const
 {
   return !m_cachedColors.empty();

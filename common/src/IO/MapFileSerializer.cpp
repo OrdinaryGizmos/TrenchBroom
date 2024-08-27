@@ -314,10 +314,10 @@ private:
                          pos[0],
                          pos[1],
                          pos[2],
-                         static_cast<int>(color.r()),
-                         static_cast<int>(color.g()),
-                         static_cast<int>(color.b()),
-                         static_cast<int>(color.a()));
+                         color.r(),
+                         color.g(),
+                         color.b(),
+                         color.a());
       }
     fmt::format_to(std::ostreambuf_iterator<char>(stream),
                    "]\n");

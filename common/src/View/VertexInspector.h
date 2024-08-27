@@ -19,54 +19,36 @@
 
 #pragma once
 
-#include <QWidget>
+#include "View/TabBook.h"
 
 #include <memory>
 
-namespace TrenchBroom
+class QWidget;
+class QColorDialog;
+
+namespace TrenchBroom::View
 {
-namespace View
-{
-class FaceInspector;
-class EntityInspector;
-class VertexInspector;
+  
 class GLContextManager;
 class MapDocument;
-class MapInspector;
-class MapViewBar;
-class SyncHeightEventFilter;
-class TabBook;
 
-enum class InspectorPage
-{
-  Map = 0,
-  Entity = 1,
-  Face = 2
-};
-
-class Inspector : public QWidget
+class VertexInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  TabBook* m_tabBook;
-  MapInspector* m_mapInspector;
-  EntityInspector* m_entityInspector;
-  FaceInspector* m_faceInspector;
-  VertexInspector* m_vertexInspector;
-
-  SyncHeightEventFilter* m_syncTabBarEventFilter;
+  std::weak_ptr<MapDocument> m_document;
+  QColorDialog* m_model;
 
 public:
-  Inspector(
+  VertexInspector(
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager,
-    QWidget* parent = nullptr);
-  void connectTopWidgets(MapViewBar* mapViewBar);
-  void switchToPage(InspectorPage page);
-  bool cancelMouseDrag();
+    QWidget* parent = nullptr);  
+  ~VertexInspector() override = default;
 
-  FaceInspector* faceInspector();
-  VertexInspector* vertexInspector();
+private:
+  void createGui(GLContextManager& contextManager);
+  void applyColor();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

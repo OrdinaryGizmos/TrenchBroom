@@ -534,6 +534,9 @@ private: // Observers and state management
       document->commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
     m_notifierConnection += document->commandUndoFailedNotifier.connect(
       this, &VertexToolBase::commandUndoFailed);
+    
+    m_notifierConnection += document->vertexColorAppliedNotifier.connect(
+      this, &VertexToolBase::applyVertexColor);
   }
 
   void commandDo(Command& command) { commandDoOrUndo(command); }
@@ -603,6 +606,8 @@ private: // Observers and state management
       addHandles(selectedNodes);
     }
   }
+  
+  virtual void applyVertexColor(Color /* color */ ) {}
 
 protected:
   virtual void deselectHandles() { handleManager().deselectAll(); }
