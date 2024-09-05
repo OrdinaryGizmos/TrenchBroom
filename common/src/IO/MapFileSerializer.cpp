@@ -294,7 +294,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeValveTextureInfo(stream, face);
+    writeValveMaterialInfo(stream, face);
 
     if (face.attributes().hasSurfaceAttributes())
     {
