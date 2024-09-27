@@ -78,7 +78,12 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushN
 
   m_cachedFacesSortedByMaterial.clear();
   m_cachedFacesSortedByMaterial.reserve(brush.faceCount());
-
+  Color blankColor;
+  if(brush.hasVertexColors()){
+    blankColor = Color(vm::vec<float, 4>{1.0, 1.0, 1.0, 1.0});
+  } else{
+    blankColor = Color(vm::vec<float, 4>{-1.0, -1.0, -1.0, -1.0});
+  }
   for (const auto& face : brush.faces())
   {
     const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
@@ -102,7 +107,7 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushN
       const auto& position = vertex->position();
 
       //DONE: Get the correct color from the vertex index.
-      Color vertColor = Color(vm::vec<float, 4>{1.0, 1.0, 1.0, 1.0});
+      Color vertColor = blankColor;
       auto colorValue = brushNode.brush().colors().find(position);
       if(colorValue != brushNode.brush().colors().end()){
         vertColor = colorValue->second;

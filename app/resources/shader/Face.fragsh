@@ -59,7 +59,11 @@ void main() {
     }
 
 
-    if (UseVertexColor){
+    if (UseVertexColor &&
+        (vertColor.a
+         + vertColor.r
+         + vertColor.g
+         + vertColor.b) > 0.0){
         texel = texel - (1.0 - vertColor);
         texel.a = vertColor.a;
     } else{

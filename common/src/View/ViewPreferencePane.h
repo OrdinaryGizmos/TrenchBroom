@@ -36,6 +36,7 @@ private:
   QCheckBox* m_link2dCameras = nullptr;
   SliderWithLabel* m_brightnessSlider = nullptr;
   SliderWithLabel* m_gridAlphaSlider = nullptr;
+  SliderWithLabel* m_faceAlphaSlider = nullptr;
   SliderWithLabel* m_fovSlider = nullptr;
   QCheckBox* m_showAxes = nullptr;
   QComboBox* m_filterModeCombo = nullptr;
@@ -65,6 +66,7 @@ private slots:
   void link2dCamerasChanged(int state);
   void brightnessChanged(int value);
   void gridAlphaChanged(int value);
+  void faceAlphaChanged(int value);
   void fovChanged(int value);
   void showAxesChanged(int state);
   void enableMsaaChanged(int state);
