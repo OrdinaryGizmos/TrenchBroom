@@ -146,6 +146,8 @@ protected:
 
   ViewEffectsService* m_viewEffectsService;
 
+  Color m_vertexColor;
+
   /*
    * All actions pushed to this stack can be repeated later. The stack must be
    * primed to be cleared whenever the selection changes. The effect is that
@@ -211,6 +213,8 @@ public: // notification
 
   Notifier<> portalFileWasLoadedNotifier;
   Notifier<> portalFileWasUnloadedNotifier;
+  
+  Notifier<Color> vertexColorAppliedNotifier;
 
 private:
   NotifierConnection m_notifierConnection;
@@ -605,6 +609,8 @@ public:
   bool setFaceAttributesExceptContentFlags(
     const mdl::BrushFaceAttributes& attributes) override;
   bool setFaceAttributes(const mdl::ChangeBrushFaceAttributesRequest& request) override;
+  void setVertexColors(const Color& color);
+  Color& vertexColor();
   bool copyUVFromFace(
     const mdl::UVCoordSystemSnapshot& coordSystemSnapshot,
     const mdl::BrushFaceAttributes& attribs,

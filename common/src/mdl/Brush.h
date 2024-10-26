@@ -113,6 +113,8 @@ public: // face management:
   bool hasVertexColor(vm::vec3& pos) const;
   bool hasVertexColors() const;
   void setColors(std::unordered_map<vm::vec3, Color> colors);
+  void addOrUpdateColor(vm::vec3 pos, Color color);
+  void cleanColorCache();
 
 public: // clone face attributes from matching faces of other brushes
   void cloneFaceAttributesFrom(const Brush& brush);

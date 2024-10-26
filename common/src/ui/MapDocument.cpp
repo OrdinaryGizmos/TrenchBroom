@@ -3691,6 +3691,22 @@ bool MapDocument::setFaceAttributes(const mdl::ChangeBrushFaceAttributesRequest&
     });
 }
 
+
+void MapDocument::setVertexColors(
+  const Color& color)
+{
+  // Get selection
+  // Apply color to the selection
+  m_vertexColor = color;
+  vertexColorAppliedNotifier(color);
+  nodesDidChangeNotifier(m_selectedNodes.nodes());
+}
+
+Color& MapDocument::vertexColor()
+{
+  return m_vertexColor;
+}
+
 bool MapDocument::copyUVFromFace(
   const mdl::UVCoordSystemSnapshot& coordSystemSnapshot,
   const mdl::BrushFaceAttributes& attribs,

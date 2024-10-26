@@ -70,6 +70,7 @@
 #include "ui/CompilationDialog.h"
 #include "ui/EdgeTool.h"
 #include "ui/FaceInspector.h"
+#include "ui/VertexInspector.h"
 #include "ui/FaceTool.h"
 #include "ui/FrameManager.h"
 #include "ui/GLContextManager.h"
@@ -733,6 +734,7 @@ void MapFrame::connectObservers()
   m_notifierConnection +=
     m_mapView->mapViewToolBox().toolHandleSelectionChangedNotifier.connect(
       this, &MapFrame::toolHandleSelectionChanged);
+  
 }
 
 void MapFrame::documentWasCleared(ui::MapDocument*)

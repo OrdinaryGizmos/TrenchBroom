@@ -486,9 +486,13 @@ static void getMarkedEdgeIndices(
 bool BrushRenderer::shouldDrawFaceInTransparentPass(
   const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
 {
-  if(brushNode.brush().hasVertexColors()){
-    return true;
-  }
+  for(auto color : brushNode.brush().colors())
+    {
+      if(color.second.a() < 1.0)
+        {
+          return true;
+        }
+    }
   if (m_transparencyAlpha >= 1.0f)
   {
     // In this case, draw everything in the opaque pass

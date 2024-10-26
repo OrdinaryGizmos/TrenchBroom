@@ -23,6 +23,7 @@
 
 #include "ui/EntityInspector.h"
 #include "ui/FaceInspector.h"
+#include "ui/VertexInspector.h"
 #include "ui/MapInspector.h"
 #include "ui/MapViewBar.h"
 #include "ui/QtUtils.h"
@@ -33,18 +34,25 @@ namespace tb::ui
 {
 Inspector::Inspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : QWidget{parent}
+    : QWidget{parent}
+  , m_tabBook(nullptr)
+  , m_mapInspector(nullptr)
+  , m_entityInspector(nullptr)
+  , m_faceInspector(nullptr)
+  , m_vertexInspector(nullptr)
+  , m_syncTabBarEventFilter(nullptr)
 {
   m_tabBook = new TabBook{};
 
   m_mapInspector = new MapInspector{document};
   m_entityInspector = new EntityInspector{document, contextManager};
   m_faceInspector = new FaceInspector{document, contextManager};
+  m_vertexInspector = new VertexInspector{document, contextManager};
 
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");
   m_tabBook->addPage(m_faceInspector, "Face");
-  //m_tabBook->addPage(, "Vertex");
+  m_tabBook->addPage(m_vertexInspector, "Vertex");
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
@@ -77,5 +85,9 @@ FaceInspector* Inspector::faceInspector()
 {
   return m_faceInspector;
 }
-
+  
+VertexInspector* Inspector::vertexInspector()
+{
+  return m_vertexInspector;
+}
 } // namespace tb::ui

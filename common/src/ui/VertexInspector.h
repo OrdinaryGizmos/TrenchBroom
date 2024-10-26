@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,52 +19,36 @@
 
 #pragma once
 
-#include <QWidget>
+#include "View/TabBook.h"
 
 #include <memory>
 
-namespace tb::ui
+class QWidget;
+class QColorDialog;
+
+namespace TrenchBroom::View
 {
-class FaceInspector;
-class EntityInspector;
-class VertexInspector;
+  
 class GLContextManager;
 class MapDocument;
-class MapInspector;
-class MapViewBar;
-class SyncHeightEventFilter;
-class TabBook;
 
-enum class InspectorPage
-{
-  Map = 0,
-  Entity = 1,
-  Face = 2
-};
-
-class Inspector : public QWidget
+class VertexInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  TabBook* m_tabBook = nullptr;
-  MapInspector* m_mapInspector = nullptr;
-  EntityInspector* m_entityInspector = nullptr;
-  FaceInspector* m_faceInspector = nullptr;
-  VertexInspector* m_vertexInspector = nullptr;
-
-  SyncHeightEventFilter* m_syncTabBarEventFilter = nullptr;
+  std::weak_ptr<MapDocument> m_document;
+  QColorDialog* m_model;
 
 public:
-  Inspector(
+  VertexInspector(
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager,
-    QWidget* parent = nullptr);
-  void connectTopWidgets(MapViewBar* mapViewBar);
-  void switchToPage(InspectorPage page);
-  bool cancelMouseDrag();
+    QWidget* parent = nullptr);  
+  ~VertexInspector() override = default;
 
-  FaceInspector* faceInspector();
-  VertexInspector* vertexInspector();
+private:
+  void createGui(GLContextManager& contextManager);
+  void applyColor();
 };
 
-} // namespace tb::ui
+} // namespace TrenchBroom::View
