@@ -45,6 +45,7 @@ BrushFaceAttributes::BrushFaceAttributes(
   , m_surfaceFlags{other.m_surfaceFlags}
   , m_surfaceValue{other.m_surfaceValue}
   , m_color{other.m_color}
+  , m_vertexColors(other.m_vertexColors)
 {
 }
 
@@ -121,6 +122,15 @@ bool BrushFaceAttributes::hasColor() const
   return m_color.has_value();
 }
 
+bool BrushFaceAttributes::hasVertexColors() const
+{
+  return m_vertexColors.has_value();
+}
+
+const std::optional<vm::vec<Color, 3>>& BrushFaceAttributes::vertexColors() const
+{
+  return m_vertexColors;
+}
 const std::optional<Color>& BrushFaceAttributes::color() const
 {
   return m_color;
@@ -252,4 +262,9 @@ bool BrushFaceAttributes::setColor(const std::optional<Color>& color)
   return false;
 }
 
+bool BrushFaceAttributes::setVertexColors(const vm::vec<Color, 3> colors)
+{
+    m_vertexColors = colors;
+    return true;
+}
 } // namespace tb::mdl

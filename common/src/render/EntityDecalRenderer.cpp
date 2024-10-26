@@ -53,7 +53,7 @@ std::optional<mdl::DecalSpecification> getDecalSpecification(
   return decalSpec.materialName.empty() ? std::nullopt : std::make_optional(decalSpec);
 }
 
-using Vertex = render::GLVertexTypes::P3NT2::Vertex;
+using Vertex = render::GLVertexTypes::P3NT2C4::Vertex;
 std::vector<Vertex> createDecalBrushFace(
   const mdl::EntityNode* entityNode,
   const mdl::BrushNode* brush,
@@ -135,7 +135,7 @@ std::vector<Vertex> createDecalBrushFace(
   // convert the geometry into a list of vertices
   const auto norm = vm::vec3f{plane.normal};
   return kdl::vec_transform(verts, [&](const auto& v) {
-    return Vertex{vm::vec3f{v}, norm, uvCoordSystem->uvCoords(v, attrs, textureSize)};
+    return Vertex{vm::vec3f{v}, norm, uvCoordSystem->uvCoords(v, attrs, textureSize), vm::vec4f{1.0, 1.0, 1.0, 1.0}};
   });
 }
 
