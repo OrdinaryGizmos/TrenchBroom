@@ -378,7 +378,13 @@ void StandardMapParser::parseBrush(
       parseFace(status, primitive);
       break;
     case QuakeMapToken::OBracket:
-        onColorBlock(status);
+      if (!primitive)
+      {
+        if (beginBrushCalled)
+        {
+          onColorBlock(status);
+        }
+      }
       break;
     case QuakeMapToken::CBrace:
       // TODO 2427: handle brush primitives
@@ -538,15 +544,15 @@ void StandardMapParser::parseN64Face(ParserStatus& status)
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  //Quake 2 extra info is optional
-  if (!check(
-        QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof,
-        m_tokenizer.peekToken()))
-  {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
-  }
+  // //Quake 2 extra info is optional
+  // if (!check(
+  //       QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof,
+  //       m_tokenizer.peekToken()))
+  // {
+  //   attribs.setSurfaceContents(parseInteger());
+  //   attribs.setSurfaceFlags(parseInteger());
+  //   attribs.setSurfaceValue(parseFloat());
+  // }
 
   onN64BrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
 }

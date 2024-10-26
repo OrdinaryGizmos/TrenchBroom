@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include "Color.h"
+#include "FloatType.h"
+#include "Macros.h"
+#include "mdl/BrushGeometry.h"
 #include "Result.h"
 #include "mdl/BrushGeometry.h"
 
@@ -60,6 +64,7 @@ public:
 private:
   std::vector<BrushFace> m_faces;
   std::unique_ptr<BrushGeometry> m_geometry;
+  std::unordered_map<vm::vec3, Color> m_cachedColors;
 
   kdl_reflect_decl(Brush, m_faces);
 
@@ -103,6 +108,11 @@ public: // face management:
 
   bool closed() const;
   bool fullySpecified() const;
+  
+  const std::unordered_map<vm::vec3, Color>& colors() const;
+  bool hasVertexColor(vm::vec3& pos) const;
+  bool hasVertexColors() const;
+  void setColors(std::unordered_map<vm::vec3, Color> colors);
 
 public: // clone face attributes from matching faces of other brushes
   void cloneFaceAttributesFrom(const Brush& brush);

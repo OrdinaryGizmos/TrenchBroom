@@ -86,13 +86,16 @@ void BrushRendererBrushCache::validateVertexCache(const mdl::BrushNode& brushNod
       vertex->setPayload(static_cast<GLuint>(currentIndex));
 
 
-      //TODO: Get the correct color from the vertex index.
-      Color vertColor = Color(vm::vec<float, 4>{1.0, 1.0, 1.0, 1.0});
-      if(face.attributes().hasVertexColors()){
-          vertColor = face.attributes().vertexColors().value()[(currentIndex - indexOfFirstVertexRelativeToBrush) % 3];
-      }
 
       const auto& position = vertex->position();
+
+      //DONE: Get the correct color from the vertex index.
+      Color vertColor = Color(vm::vec<float, 4>{1.0, 1.0, 1.0, 1.0});
+      auto colorValue = brushNode.brush().colors().find(position);
+      if(colorValue != brushNode.brush().colors().end()){
+        vertColor = colorValue->second;
+      }
+      
       m_cachedVertices.emplace_back(
         vm::vec3f{position},
         vm::vec3f{face.boundary().normal},

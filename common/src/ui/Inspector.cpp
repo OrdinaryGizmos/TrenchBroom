@@ -44,6 +44,7 @@ Inspector::Inspector(
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");
   m_tabBook->addPage(m_faceInspector, "Face");
+  //m_tabBook->addPage(, "Vertex");
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);

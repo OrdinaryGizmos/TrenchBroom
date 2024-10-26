@@ -81,6 +81,7 @@ private:
 private: // threadsafe
   virtual void doWriteBrushFace(
     std::ostream& stream, const mdl::BrushFace& face) const = 0;
+    virtual void doWriteBrushFooter(std::ostream& /* stream */, const mdl::Brush& /* brush */) const {};
   PrecomputedString writeBrushFaces(const mdl::Brush& brush) const;
   PrecomputedString writePatch(const mdl::BezierPatch& patch) const;
 };

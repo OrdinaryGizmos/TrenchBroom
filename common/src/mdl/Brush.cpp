@@ -68,6 +68,7 @@ Brush::Brush(const Brush& other)
       other.m_geometry
         ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback())
         : nullptr}
+  , m_cachedColors{other.m_cachedColors}
 {
   if (m_geometry)
   {
@@ -233,6 +234,46 @@ const std::vector<BrushFace>& Brush::faces() const
 std::vector<BrushFace>& Brush::faces()
 {
   return m_faces;
+}
+
+const std::unordered_map<vm::vec3, Color>& Brush::colors() const
+{
+  return m_cachedColors;
+}
+
+void Brush::setColors(std::unordered_map<vm::vec3, Color> colors)
+{
+  m_cachedColors = colors;
+}
+
+bool Brush::hasVertexColors() const
+{
+  return !m_cachedColors.empty();
+}
+
+bool Brush::hasVertexColor(vm::vec3& pos) const
+{
+  auto& vertices = m_geometry->vertices();
+  if (vertices.empty())
+  {
+    return false;
+  }
+
+  auto* firstVertex = vertices.front();
+  auto* currentVertex = firstVertex;
+  do
+  {
+    if (vm::is_equal(pos, currentVertex->position(), 0.0))
+    {
+      auto vertColorIT = m_cachedColors.find(pos);
+      if(vertColorIT != m_cachedColors.end())
+        {
+        return true;
+        }
+    }
+    currentVertex = currentVertex->next();
+  } while (currentVertex != firstVertex);
+  return false;
 }
 
 bool Brush::closed() const
@@ -957,13 +998,13 @@ Result<void> Brush::doMoveVertices(
       newVertices.push_back(position);
     }
   }
-
   BrushGeometry newGeometry(newVertices);
 
   using VecMap = std::map<vm::vec3d, vm::vec3d>;
   VecMap vertexMapping;
   for (auto* oldVertex : m_geometry->vertices())
   {
+  // TODO: cache vert colors with indices to apply to new geometry
     const auto& oldPosition = oldVertex->position();
     const auto moved = kdl::vec_contains(vertexPositions, oldPosition);
     const auto newPosition = moved ? oldPosition + delta : oldPosition;
@@ -971,6 +1012,12 @@ Result<void> Brush::doMoveVertices(
       newGeometry.findClosestVertex(newPosition, CloseVertexEpsilon);
     if (newVertex != nullptr)
     {
+      auto colorValue = m_cachedColors.find(oldPosition);
+      if(colorValue != m_cachedColors.end()){
+        auto color = std::move(colorValue->second);
+        m_cachedColors.erase(oldPosition);
+        m_cachedColors.emplace(newPosition, color);
+      }
       vertexMapping.insert(std::make_pair(oldPosition, newVertex->position()));
     }
   }

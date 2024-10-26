@@ -39,6 +39,7 @@
 
 #include "kdl/memory_utils.h"
 
+#include <qnamespace.h>
 #include <vector>
 
 namespace tb::ui
