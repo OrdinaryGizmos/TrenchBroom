@@ -137,6 +137,10 @@ QWidget* ViewPreferencePane::createViewPreferences()
   m_gridAlphaSlider->setMaximumWidth(400);
   m_gridAlphaSlider->setToolTip(
     "Sets the visibility of the grid lines in the 3D editing view.");
+  m_faceAlphaSlider = new SliderWithLabel{0, 100};
+  m_faceAlphaSlider->setMaximumWidth(400);
+  m_faceAlphaSlider->setToolTip(
+    "Sets the visibility of brushes marked transparent.");
   m_fovSlider = new SliderWithLabel{50, 150};
   m_fovSlider->setMaximumWidth(400);
   m_fovSlider->setToolTip("Sets the field of vision in the 3D editing view.");
@@ -188,6 +192,7 @@ QWidget* ViewPreferencePane::createViewPreferences()
   layout->addRow("Layout", viewLayoutLayout);
   layout->addRow("Brightness", m_brightnessSlider);
   layout->addRow("Grid", m_gridAlphaSlider);
+  layout->addRow("Transparency", m_faceAlphaSlider);
   layout->addRow("FOV", m_fovSlider);
   layout->addRow("Show axes", m_showAxes);
   layout->addRow("Filter mode", m_filterModeCombo);
@@ -227,6 +232,11 @@ void ViewPreferencePane::bindEvents()
     &SliderWithLabel::valueChanged,
     this,
     &ViewPreferencePane::gridAlphaChanged);
+  connect(
+    m_faceAlphaSlider,
+    &SliderWithLabel::valueChanged,
+    this,
+    &ViewPreferencePane::faceAlphaChanged);
   connect(
     m_fovSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::fovChanged);
   connect(
@@ -373,6 +383,13 @@ void ViewPreferencePane::gridAlphaChanged(const int /* value */)
   const auto ratio = m_gridAlphaSlider->ratio();
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::GridAlpha, ratio);
+}
+  
+void ViewPreferencePane::faceAlphaChanged(const int /* value */)
+{
+  const auto ratio = m_faceAlphaSlider->ratio();
+  auto& prefs = PreferenceManager::instance();
+  prefs.set(Preferences::TransparentFaceAlpha, ratio);
 }
 
 void ViewPreferencePane::fovChanged(const int value)

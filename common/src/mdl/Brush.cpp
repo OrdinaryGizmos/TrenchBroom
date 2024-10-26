@@ -1236,6 +1236,7 @@ Result<void> Brush::transform(
   const vm::mat4x4d& transformation,
   const bool lockMaterials)
 {
+  
   for (auto& face : m_faces)
   {
     if (!face.transform(transformation, lockMaterials).is_success())
@@ -1243,7 +1244,14 @@ Result<void> Brush::transform(
       return Error{"Brush has invalid face"};
     }
   }
-
+  
+  std::unordered_map<vm::vec3, Color> cached_colors;
+  for (auto [ pos, color ] : m_cachedColors)
+  {
+    cached_colors.emplace(transformation * pos, std::move(color));
+  }
+  m_cachedColors = std::move(cached_colors);
+  
   return updateGeometryFromFaces(worldBounds);
 }
 
