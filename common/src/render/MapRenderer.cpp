@@ -350,6 +350,7 @@ void MapRenderer::setupDefaultRenderer(ObjectRenderer& renderer)
   renderer.setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
   renderer.setTint(false);
   renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
+  renderer.setShowOccludedObjects(true);
 
   renderer.setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
   renderer.setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));

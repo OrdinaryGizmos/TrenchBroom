@@ -533,11 +533,11 @@ void StandardMapParser::parseN64Face(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  const auto [texX, xOffset, texY, yOffset] = parseValveTextureAxes(status);
+  const auto [texX, xOffset, texY, yOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
+  auto attribs = Model::BrushFaceAttributes(materialName);
   attribs.setXOffset(xOffset);
   attribs.setYOffset(yOffset);
   attribs.setRotation(parseFloat());
