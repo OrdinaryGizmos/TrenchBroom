@@ -76,7 +76,7 @@ private:
 
 class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type>
 {
-private:
+protected:
   using Token = QuakeMapTokenizer::Token;
   using EntityPropertyKeys = kdl::vector_set<std::string>;
 
@@ -102,6 +102,8 @@ public:
     std::string_view str, mdl::MapFormat sourceMapFormat, mdl::MapFormat targetMapFormat);
 
   ~StandardMapParser() override;
+    
+  vm::vec<float, 4> parseColor(ParserStatus& status);
 
 protected:
   void parseEntities(ParserStatus& status);
@@ -126,6 +128,7 @@ private:
   void parseQuakeFace(ParserStatus& status);
   void parseQuake2Face(ParserStatus& status);
   void parseQuake2ValveFace(ParserStatus& status);
+  void parseN64Face(ParserStatus& status);
   void parseHexen2Face(ParserStatus& status);
   void parseDaikatanaFace(ParserStatus& status);
   void parseValveFace(ParserStatus& status);

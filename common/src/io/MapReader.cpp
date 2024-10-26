@@ -174,6 +174,44 @@ void MapReader::onValveBrushFace(
     | kdl::transform_error(
       [&](auto e) { status.error(location, fmt::format("Skipping face: {}", e.msg)); });
 }
+    
+void MapReader::onColorBlock(ParserStatus& status){
+  assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
+
+  auto& brush = std::get<BrushInfo>(m_objectInfos.back());
+  Model::BrushFace::sortFaces(brush.faces);
+  for(auto face : brush.faces){
+      auto attribs = face.attributes();
+      if (check(QuakeMapToken::OParenthesis, m_tokenizer.peekToken()))
+          {
+              vm::vec<Color, 3> colors;
+              const auto Color = parseColor(status);
+              // red, green, blue, alpha
+              attribs.setVertexColors(colors);
+          }
+      face.setAttributes(attribs);
+  }
+}
+    
+void MapReader::onN64BrushFace(
+  const size_t line,
+  const Model::MapFormat targetMapFormat,
+  const vm::vec3& point1,
+  const vm::vec3& point2,
+  const vm::vec3& point3,
+  const Model::BrushFaceAttributes& attribs,
+  const vm::vec3& texAxisX,
+  const vm::vec3& texAxisY,
+  ParserStatus& status)
+{
+  Model::BrushFace::createFromValve(
+    point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
+    .transform([&](Model::BrushFace&& face) {
+      face.setFilePosition(line, 1u);
+      onBrushFace(std::move(face), status);
+    })
+    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+}
 
 void MapReader::onPatch(
   const FileLocation& startLocation,
