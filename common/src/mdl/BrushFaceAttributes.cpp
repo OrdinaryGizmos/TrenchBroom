@@ -251,10 +251,4 @@ bool BrushFaceAttributes::setColor(const std::optional<Color>& color)
   }
   return false;
 }
-
-bool BrushFaceAttributes::setVertexColors(const vm::vec<Color, 3> colors)
-{
-    m_vertexColors = colors;
-    return true;
-}
 } // namespace tb::mdl

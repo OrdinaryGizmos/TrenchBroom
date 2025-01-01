@@ -55,7 +55,7 @@ protected: // subclassing interface for users of the parser
   virtual void onEndEntity(const FileLocation& endLocation, ParserStatus& status) = 0;
   virtual void onBeginBrush(const FileLocation& location, ParserStatus& status) = 0;
   virtual void onEndBrush(const FileLocation& endLocation, ParserStatus& status) = 0;
-  virtual void onColorBlock(ParserStatus& status) = 0;
+  virtual void onColorBlock(const FileLocation& location, ParserStatus& status) = 0;
   virtual void onStandardBrushFace(
     const FileLocation& location,
     mdl::MapFormat targetMapFormat,
@@ -75,14 +75,14 @@ protected: // subclassing interface for users of the parser
     const vm::vec3d& vAxis,
     ParserStatus& status) = 0;
   virtual void onN64BrushFace(
-    size_t line,
-    Model::MapFormat targetMapFormat,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
-    const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const FileLocation& location,
+    mdl::MapFormat targetMapFormat,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
+    const mdl::BrushFaceAttributes& attribs,
+    const vm::vec3d& texAxisX,
+    const vm::vec3d& texAxisY,
     ParserStatus& status) = 0;
   virtual void onPatch(
     const FileLocation& startLocation,

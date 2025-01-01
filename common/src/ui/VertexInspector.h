@@ -19,36 +19,43 @@
 
 #pragma once
 
-#include "View/TabBook.h"
+#include "ui/TabBook.h"
 
 #include <memory>
+#include <qcolordialog.h>
 
 class QWidget;
 class QColorDialog;
 
-namespace TrenchBroom::View
+namespace tb::ui
 {
-  
+
 class GLContextManager;
 class MapDocument;
+
+
+class VertexColorDialog : public QColorDialog
+{
+  void reject() override;
+};
 
 class VertexInspector : public TabBookPage
 {
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QColorDialog* m_model;
+  VertexColorDialog* m_model;
 
 public:
   VertexInspector(
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager,
-    QWidget* parent = nullptr);  
+    QWidget* parent = nullptr);
   ~VertexInspector() override = default;
 
 private:
   void createGui(GLContextManager& contextManager);
   void applyColor();
+  void getColorFromSelection();
 };
-
-} // namespace TrenchBroom::View
+} // namespace tb::ui

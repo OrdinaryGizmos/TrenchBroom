@@ -81,6 +81,7 @@ public: // only public so that helper methods can see these declarations
   struct BrushInfo
   {
     std::vector<mdl::BrushFace> faces;
+    std::unordered_map<vm::vec3, Color> cached_colors;
     FileLocation startLocation;
     std::optional<FileLocation> endLocation;
     std::optional<size_t> parentIndex;
@@ -151,7 +152,7 @@ protected: // implement MapParser interface
   void onEndEntity(const FileLocation& endLocation, ParserStatus& status) override;
   void onBeginBrush(const FileLocation& location, ParserStatus& status) override;
   void onEndBrush(const FileLocation& endLocation, ParserStatus& status) override;
-  void onColorBlock(ParserStatus& status) override;
+  void onColorBlock(const FileLocation& location, ParserStatus& status) override;
   void onStandardBrushFace(
     const FileLocation& location,
     mdl::MapFormat targetMapFormat,
@@ -171,14 +172,14 @@ protected: // implement MapParser interface
     const vm::vec3d& vAxis,
     ParserStatus& status) override;
   void onN64BrushFace(
-    size_t line,
-    Model::MapFormat targetMapFormat,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
-    const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const FileLocation& location,
+    mdl::MapFormat targetMapFormat,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
+    const mdl::BrushFaceAttributes& attribs,
+    const vm::vec3d& texAxisX,
+    const vm::vec3d& texAxisY,
     ParserStatus& status) override;
   void onPatch(
     const FileLocation& startLocation,

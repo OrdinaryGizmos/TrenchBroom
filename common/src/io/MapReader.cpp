@@ -128,7 +128,7 @@ void MapReader::onEndEntity(const FileLocation& endLocation, ParserStatus& /* st
 
 void MapReader::onBeginBrush(const FileLocation& location, ParserStatus& /* status */)
 {
-  m_objectInfos.emplace_back(BrushInfo{{}, location, std::nullopt, m_currentEntityInfo});
+  m_objectInfos.emplace_back(BrushInfo{{}, {}, location, std::nullopt, m_currentEntityInfo});
 }
 
 void MapReader::onEndBrush(const FileLocation& endLocation, ParserStatus& /* status */)
@@ -179,31 +179,31 @@ void MapReader::onValveBrushFace(
 }
    
 void MapReader::onN64BrushFace(
-  const size_t line,
-  const Model::MapFormat targetMapFormat,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
-  const vm::vec3& point3,
-  const Model::BrushFaceAttributes& attribs,
-  const vm::vec3& texAxisX,
-  const vm::vec3& texAxisY,
+  const FileLocation& location,
+  const mdl::MapFormat targetMapFormat,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& point3,
+  const mdl::BrushFaceAttributes& attribs,
+  const vm::vec3d& texAxisX,
+  const vm::vec3d& texAxisY,
   ParserStatus& status)
 {
-  Model::BrushFace::createFromValve(
+  mdl::BrushFace::createFromValve(
     point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
-    .transform([&](Model::BrushFace&& face) {
-      face.setFilePosition(line, 1u);
+    .transform([&](mdl::BrushFace&& face) {
+      face.setFilePosition(location.line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+    .transform_error([&](auto e) { status.error(location, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onPatch(
   const FileLocation& startLocation,
   const FileLocation& endLocation,
   mdl::MapFormat,
-  const size_t rowCount,
-  const size_t columnCount,
+  size_t rowCount,
+  size_t columnCount,
   std::vector<vm::vec<double, 5>> controlPoints,
   std::string materialName,
   ParserStatus&)
@@ -1020,13 +1020,13 @@ void MapReader::onBrushFace(mdl::BrushFace face, ParserStatus& /* status */)
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
   brush.faces.push_back(std::move(face));
 }
-void MapReader::onColorBlock(ParserStatus& status)
+
+void MapReader::onColorBlock(const FileLocation& location, ParserStatus& status)
 {
-  size_t lineCount = m_tokenizer.line();
   expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
   assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
 
-  auto& brush = std::get<BrushInfo>(m_objectInfos.back());
+  auto& brush = std::get<MapReader::BrushInfo>(m_objectInfos.back());
   std::unordered_map<vm::vec3, Color> cached_colors;
 
   /// For each color found, put that color on the
@@ -1042,8 +1042,8 @@ void MapReader::onColorBlock(ParserStatus& status)
       }
   }
   expect(QuakeMapToken::CBracket, m_tokenizer.nextToken());
-
-  brush.lineCount += m_tokenizer.line() - lineCount;
+  brush.startLocation = location;
+  brush.endLocation = m_tokenizer.location();
   brush.cached_colors = cached_colors;
 }
 } // namespace tb::io

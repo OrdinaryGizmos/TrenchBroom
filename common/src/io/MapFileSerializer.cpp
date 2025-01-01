@@ -285,11 +285,11 @@ public:
   }
 
 private:
-  void doWriteBrushFooter(std::ostream& stream, const Model::Brush& brush) const override
+  void doWriteBrushFooter(std::ostream& stream, const mdl::Brush& brush) const override
   {
     writeVertexColors(stream, brush);
   }
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
@@ -301,7 +301,7 @@ private:
     fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
   }
     
-  void writeVertexColors(std::ostream& stream, const Model::Brush& brush) const
+  void writeVertexColors(std::ostream& stream, const mdl::Brush& brush) const
   {
     fmt::format_to(std::ostreambuf_iterator<char>(stream),
                    "[\n");

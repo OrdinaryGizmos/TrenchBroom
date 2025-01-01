@@ -382,7 +382,7 @@ void StandardMapParser::parseBrush(
       {
         if (beginBrushCalled)
         {
-          onColorBlock(status);
+            onColorBlock(token.location(), status);
         }
       }
       break;
@@ -530,14 +530,14 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
 
 void StandardMapParser::parseN64Face(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
   const auto [texX, xOffset, texY, yOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = mdl::BrushFaceAttributes(materialName);
   attribs.setXOffset(xOffset);
   attribs.setYOffset(yOffset);
   attribs.setRotation(parseFloat());
@@ -554,7 +554,7 @@ void StandardMapParser::parseN64Face(ParserStatus& status)
   //   attribs.setSurfaceValue(parseFloat());
   // }
 
-  onN64BrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
+  onN64BrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)

@@ -41,8 +41,6 @@
 
 namespace tb::ui
 {
-namespace View
-{
   template <typename T>
 auto collectContainingGroups(const std::vector<T*>& nodes)
 {
@@ -314,7 +312,7 @@ void VertexTool::applyVertexColor(Color color)
   auto document = kdl::mem_lock(m_document);
   for(auto& b : selectedBrushes())
     {
-      auto br = Model::Brush(b->brush());
+        auto br = mdl::Brush(b->brush());
       for(auto& v : m_vertexHandles->selectedHandles())
         {
           br.addOrUpdateColor(v, color);

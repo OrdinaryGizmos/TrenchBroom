@@ -17,84 +17,94 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
-#include <qframe.h>
-#include <qnamespace.h> 
-#include <qcolordialog.h>
-#include <qpushbutton.h>
+#include "ui/VertexInspector.h"
+
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QVBoxLayout>
 
 #include "Color.h"
-#include "View/MapDocument.h"
-#include "View/Splitter.h"
-#include "View/TabBook.h"
-#include "View/VertexInspector.h"
+#include "ui/MapDocument.h"
+#include "ui/Splitter.h"
+#include "ui/TabBook.h"
+
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom::View{
+#include <memory>
+#include <qcolordialog.h>
+#include <qframe.h>
+#include <qnamespace.h>
+#include <qpushbutton.h>
 
-  VertexInspector::VertexInspector(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+namespace tb::ui
+{
+
+// Stops the "Esc" key from closing the dialog
+void VertexColorDialog::reject()
+{
+  if (1 == 2)
+  {
+    done(0);
+  }
+}
+
+VertexInspector::VertexInspector(
+  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
   , m_document(std::move(document))
   , m_model(nullptr)
-  {
-    createGui(contextManager);
-  }
+{
+  createGui(contextManager);
+}
 
-  void VertexInspector::createGui(GLContextManager& /* contextManager */ )
-  {
-    auto frame = new Splitter{Qt::Vertical};
-    m_model = new QColorDialog{};
-    m_model->setWindowFlags(Qt::Widget);
-    m_model->setOptions(QColorDialog::DontUseNativeDialog
-                        | QColorDialog::NoButtons
-                        | QColorDialog::ShowAlphaChannel);
-    
-    frame->addWidget(m_model);
+void VertexInspector::createGui(GLContextManager& /* contextManager */)
+{
+  auto frame = new Splitter{Qt::Vertical};
+  m_model = new VertexColorDialog{};
+  m_model->setWindowFlags(Qt::Widget);
+  m_model->setOptions(
+    QColorDialog::DontUseNativeDialog | QColorDialog::NoButtons
+    | QColorDialog::ShowAlphaChannel);
 
-    auto applyButton = new QPushButton{"Apply to Selection"};
-    
-    frame->addWidget(applyButton);
+  frame->addWidget(m_model);
 
-    
-    auto* layout = new QVBoxLayout{};
-    layout->addWidget(frame);
-    
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    layout->addStretch();
+  auto applyButton = new QPushButton{"Apply to Selection"};
 
-    setLayout(layout);
+  frame->addWidget(applyButton);
 
-    // Connect OnChange and Apply to changing the verts
-    connect(
-            applyButton,
-            &QPushButton::clicked,
-            this,
-            &VertexInspector::applyColor);
-    
-    connect(
-            m_model,
-            &QColorDialog::currentColorChanged,
-            this,
-            &VertexInspector::applyColor);
-      
-  }
 
-  void VertexInspector::applyColor(){
-    auto document = kdl::mem_lock(m_document);
-    
-    auto color = m_model->currentColor();
-    auto c = new Color(
-                       color.red(),
-                       color.green(),
-                       color.blue(),
-                       color.alpha()
-                       );
-    document->setVertexColors(*c);
-  }
+  auto* layout = new QVBoxLayout{};
+  layout->addWidget(frame);
 
-} // namespace Trenchbroom
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+  layout->addStretch();
+
+  setLayout(layout);
+
+  // Connect OnChange and Apply to changing the verts
+  connect(applyButton, &QPushButton::clicked, this, &VertexInspector::applyColor);
+
+  connect(
+    m_model, &QColorDialog::currentColorChanged, this, &VertexInspector::applyColor);
+}
+
+void VertexInspector::applyColor()
+{
+  auto document = kdl::mem_lock(m_document);
+
+  auto color = m_model->currentColor();
+  auto c = new Color(color.red(), color.green(), color.blue(), color.alpha());
+  document->setVertexColors(*c);
+}
+
+void VertexInspector::getColorFromSelection()
+{
+  auto document = kdl::mem_lock(m_document);
+
+  auto color = m_model->currentColor();
+  auto c = new Color(color.red(), color.green(), color.blue(), color.alpha());
+  document->setVertexColors(*c);
+}
+
+} // namespace tb::ui
